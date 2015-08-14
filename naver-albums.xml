@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scraper framework="1.1" date="2013-02-06" language="ko">
+	<NfoUrl dest="3">
+		<RegExp input="$$1" output="\1" dest="3">
+			<expression>(http://music.naver.com/album.*)</expression>
+		</RegExp>
+	</NfoUrl>
+	<CreateAlbumSearchUrl dest="3">
+		<RegExp input="$$4" output="&lt;url&gt;http://music.naver.com/search/search.nhn?query=\1&amp;target=album&lt;/url&gt;" dest="3">
+			<RegExp conditional="!srchByArtist" input="$$1" output="\1" dest="4">
+				<expression/>
+			</RegExp>
+			<RegExp conditional="srchByArtist">
+				<RegExp conditional="!srchByAlbum" input="$$2" output="\1" dest="4">
+					<expression/>
+				</RegExp>
+				<RegExp conditional="srchByAlbum" input="$$2%20$$1" output="\1" dest="4">
+					<expression/>
+				</RegExp>
+				<expression/>
+			</RegExp>
+			<expression/>
+		</RegExp>
+	</CreateAlbumSearchUrl>
+	<GetAlbumSearchResults dest="3">
+		<RegExp input="$$4" output="&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; standalone=&quot;yes&quot;?&gt;&lt;results&gt;\1&lt;/results&gt;" dest="3">
+			<RegExp input="$$1" output="&lt;entity&gt;&lt;title&gt;\2&lt;/title&gt;&lt;artist&gt;\3&lt;/artist&gt;&lt;url&gt;http://music.naver.com\1&lt;/url&gt;&lt;/entity&gt;" dest="4">
+				<expression repeat="yes">&lt;dt&gt;&lt;a href="(/album/index\.nhn\?albumId=\d+)" title="(.*?)".*?&lt;a href="/artist/.*?title="(.*?)"</expression>
+			</RegExp>
+			<RegExp input="$$1" output="&lt;url function=&quot;GetAlbumSearchResultPage&quot;&gt;http://music.naver.com\1&lt;/url&gt;" dest="4+">
+				<expression repeat="yes">&lt;a href="/(.*?)"[^&gt;]*class="[^"]*NPI=a:page[^"]*"&gt;</expression>
+			</RegExp>
+			<expression noclean="1"/>
+		</RegExp>
+	</GetAlbumSearchResults>
+	<GetAlbumSearchResultPage dest="3">
+		<RegExp input="$$4" output="&lt;results&gt;\1&lt;/results&gt;" dest="3">
+			<RegExp input="$$1" output="&lt;entity&gt;&lt;title&gt;\2&lt;/title&gt;&lt;artist&gt;\3&lt;/artist&gt;&lt;url&gt;http://music.naver.com\1&lt;/url&gt;&lt;/entity&gt;" dest="4">
+				<expression repeat="yes">&lt;dt&gt;&lt;a href="(/album/index\.nhn\?albumId=\d+)" title="(.*?)".*?&lt;a href="/artist/.*?title="(.*?)"</expression>
+			</RegExp>
+			<expression noclean="1"/>
+		</RegExp>
+	</GetAlbumSearchResultPage>
+	<GetAlbumDetails dest="3">
+		<RegExp input="$$4" output="&lt;details&gt;\1&lt;/details&gt;" dest="3">
+			<RegExp input="$$1" output="&lt;title&gt;\1&lt;/title&gt;" dest="4">
+				<expression>&lt;h2&gt;(.*?)&lt;/h2&gt;</expression>
+			</RegExp>
+			<RegExp input="$$1" output="&lt;artist&gt;\1&lt;/artist&gt;" dest="4+">
+				<expression>&lt;a [^&gt;]*class="NPI=a:artist[^"]*"&gt;(.*?)&lt;/a&gt;</expression>
+			</RegExp>
+			<RegExp input="$$5" output="&lt;genre&gt;\1&lt;/genre&gt;" dest="4+">
+				<RegExp input="$$1" output="\1" dest="5">
+					<expression>&lt;dt class="type"&gt;.*?&lt;dd&gt;(.*?)&lt;</expression>
+				</RegExp>
+				<expression repeat="yes" trim="1">\s*([^,]+)</expression>
+			</RegExp>
+			<RegExp input="$$1" output="&lt;year&gt;\1&lt;/year&gt;" dest="4+">
+				<expression trim="1">&lt;dt class="date"&gt;.*?&lt;dd&gt;(\d{4})[^&lt;]*&lt;</expression>
+			</RegExp>
+			<RegExp input="$$1" output="&lt;releasedate&gt;\1&lt;/releasedate&gt;" dest="4+">
+				<expression trim="1">&lt;dt class="date"&gt;.*?&lt;dd&gt;(.*?)&lt;</expression>
+			</RegExp>
+			<RegExp input="$$1" output="&lt;label&gt;\1&lt;/label&gt;" dest="4+">
+				<expression trim="1">&lt;dt class="company"&gt;.*?&lt;dd&gt;(.*?)&lt;</expression>
+			</RegExp>
+			<RegExp input="$$1" output="&lt;thumb&gt;\1&lt;/thumb&gt;" dest="4+">
+				<expression>class="NPI=a:image[^"]*"&gt;\s*&lt;img src="(.*?)"[^&gt;]*&gt;\s*&lt;span class="mask"&gt;</expression>
+			</RegExp>
+			<RegExp input="$$5" output="&lt;review&gt;\1&lt;/review&gt;" dest="4+">
+				<RegExp input="$$1" output="\1" dest="6">
+					<expression noclean="1">&lt;p class="[^"]*intro_desc"&gt;(.*?)&lt;/p&gt;</expression>
+				</RegExp>
+				<RegExp input="$$6" output="\1" dest="5">
+					<expression />
+				</RegExp>
+				<RegExp input="$$6" output="\1\n" dest="5">
+					<expression repeat="yes">(.*?)&lt;br */&gt;</expression>
+				</RegExp>
+				<RegExp input="$$6" output="\1" dest="5+">
+					<expression>br */&gt;([^&gt;]*)$</expression>
+				</RegExp>
+				<expression trim="1" />
+			</RegExp>
+			<RegExp input="$$1" output="&lt;track&gt;&lt;position&gt;\1&lt;/position&gt;&lt;title&gt;\2&lt;/title&gt;&lt;/track&gt;" dest="4+">
+				<expression repeat="yes">&lt;a [^&gt;]*class="[^"]*title NPI=a:track,r:(\d*)[^"]*" *title="(.*?)" *&gt;</expression>
+			</RegExp>
+			<RegExp input="$$1" output="&lt;rating&gt;\1&lt;/rating&gt;" dest="4+">
+				<expression>&lt;div class="[^"]*score"&gt;\s*&lt;span class="num(\d+)"&gt;</expression>
+			</RegExp>
+			<expression noclean="1"/>
+		</RegExp>
+	</GetAlbumDetails>
+</scraper>

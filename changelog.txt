@@ -1,0 +1,24 @@
+1.1.2
+
+Changes
+- preserve line break in review
+
+1.1.0
+
+Changes
+- support the recently revised website
+- Agent server support is removed
+
+1.0.4
+
+Changes
+- version fix
+
+1.0.1
+Changes
+- support multiple search result page
+
+1.0.0
+
+Changes
+- Initial addon version
